@@ -49,6 +49,47 @@ test-errors: install-test
 test-endpoints: install-test
 	$(PYTEST) tests/integration/test_endpoints.py -v
 
+# Docker commands
+docker-build:
+	docker build -t sentiment-analysis-api:latest .
+
+docker-build-test:
+	docker build -f Dockerfile.test -t sentiment-analysis-api:test .
+
+docker-run:
+	docker run -d --name sentiment-api -p 8000:8000 sentiment-analysis-api:latest
+
+docker-stop:
+	docker stop sentiment-api || true
+	docker rm sentiment-api || true
+
+docker-test:
+	docker run --rm sentiment-analysis-api:test
+
+docker-compose-up:
+	docker-compose up -d
+
+docker-compose-down:
+	docker-compose down
+
+docker-compose-test:
+	docker-compose run --rm sentiment-api-test
+
+# Linting and formatting
+lint:
+	flake8 app/ tests/ --max-line-length=88 --extend-ignore=E203,W503
+
+format:
+	black app/ tests/
+	isort app/ tests/
+
+format-check:
+	black --check app/ tests/
+	isort --check-only app/ tests/
+
+security-scan:
+	bandit -r app/ -f json -o bandit-report.json
+
 # Nettoyage des fichiers de test
 clean:
 	rm -rf .pytest_cache/
@@ -58,9 +99,16 @@ clean:
 	find . -type d -name "__pycache__" -exec rm -rf {} +
 	find . -name "*.pyc" -delete
 
+# Nettoyage Docker
+clean-docker:
+	docker system prune -f
+	docker image prune -f
+
 # Aide
 help:
 	@echo "Commandes disponibles:"
+	@echo ""
+	@echo "Tests:"
 	@echo "  make test              - Exécuter tous les tests"
 	@echo "  make test-unit         - Tests unitaires uniquement"
 	@echo "  make test-integration  - Tests d'intégration uniquement"
@@ -70,6 +118,25 @@ help:
 	@echo "  make test-service      - Tests du service"
 	@echo "  make test-errors       - Tests de gestion d'erreurs"
 	@echo "  make test-endpoints    - Tests des endpoints"
-	@echo "  make install-test      - Installer les dépendances de test"
+	@echo ""
+	@echo "Docker:"
+	@echo "  make docker-build      - Construire l'image Docker"
+	@echo "  make docker-build-test - Construire l'image de test"
+	@echo "  make docker-run        - Démarrer le conteneur"
+	@echo "  make docker-stop       - Arrêter le conteneur"
+	@echo "  make docker-test       - Tester l'image Docker"
+	@echo "  make docker-compose-up - Démarrer avec docker-compose"
+	@echo "  make docker-compose-down - Arrêter docker-compose"
+	@echo "  make docker-compose-test - Tests avec docker-compose"
+	@echo ""
+	@echo "Code Quality:"
+	@echo "  make lint              - Vérifier le style de code"
+	@echo "  make format            - Formater le code"
+	@echo "  make format-check      - Vérifier le formatage"
+	@echo "  make security-scan     - Scan de sécurité"
+	@echo ""
+	@echo "Nettoyage:"
 	@echo "  make clean             - Nettoyer les fichiers de test"
+	@echo "  make clean-docker      - Nettoyer Docker"
+	@echo "  make install-test      - Installer les dépendances de test"
 	@echo "  make help              - Afficher cette aide" 
