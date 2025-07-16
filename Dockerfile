@@ -56,6 +56,10 @@ COPY --chown=appuser:appuser models/ ./models/
 # Créer les répertoires nécessaires
 RUN mkdir -p /app/logs && chown -R appuser:appuser /app
 
+# Créer un cache HuggingFace accessible
+RUN mkdir -p /app/cache && chown -R appuser:appuser /app/cache
+ENV TRANSFORMERS_CACHE=/app/cache
+
 # Changer vers l'utilisateur non-root
 USER appuser
 
