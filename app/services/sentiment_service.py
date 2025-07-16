@@ -1,9 +1,14 @@
 import pathlib
 import pickle
+import os
 from typing import Tuple
 
 import tensorflow as tf
 from transformers import AutoTokenizer
+
+# Set cache directory for transformers to writable location in Lambda
+os.environ['TRANSFORMERS_CACHE'] = '/tmp/transformers_cache'
+os.environ['HF_HOME'] = '/tmp/huggingface_cache'
 
 
 class SentimentService:
@@ -20,18 +25,29 @@ class SentimentService:
     def _load_model(self):
         """Charge le modèle DistilBERT et les composants nécessaires"""
         try:
+            print(f"🔍 Début du chargement du modèle...")
+            print(f"📁 Répertoire de travail: {os.getcwd()}")
+            print(f"📁 Cache directory: {os.environ.get('TRANSFORMERS_CACHE', 'Non défini')}")
+            
             # Chemin vers le modèle SavedModel
             model_dir = self.model_path / "distilbert_HF_2000k"
+            print(f"📁 Chemin du modèle: {model_dir}")
 
             if not model_dir.exists():
                 raise FileNotFoundError(f"Dossier du modèle non trouvé: {model_dir}")
 
+            print("🔄 Chargement du modèle TensorFlow...")
             # Charger le modèle avec tf.saved_model.load (plus compatible)
             self.model = tf.saved_model.load(str(model_dir))
 
-            # Charger le tokenizer
-            self.tokenizer = AutoTokenizer.from_pretrained(self.model_name)
+            print("🔄 Chargement du tokenizer...")
+            # Charger le tokenizer avec cache directory
+            self.tokenizer = AutoTokenizer.from_pretrained(
+                self.model_name,
+                cache_dir='/tmp/transformers_cache'
+            )
 
+            print("🔄 Chargement du label encoder...")
             # Charger le label encoder
             le_path = self.model_path / "label_encoder.pkl"
             with open(le_path, "rb") as f:
@@ -41,6 +57,8 @@ class SentimentService:
 
         except Exception as e:
             print(f"❌ Erreur lors du chargement du modèle: {e}")
+            import traceback
+            print(f"📋 Stack trace: {traceback.format_exc()}")
             raise
 
     def predict_sentiment(self, text: str) -> Tuple[str, float]:
