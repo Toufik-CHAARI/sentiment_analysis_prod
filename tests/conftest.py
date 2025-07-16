@@ -2,12 +2,13 @@
 Configuration pytest avec fixtures communes
 """
 
-import pytest
-from fastapi.testclient import TestClient
 from unittest.mock import Mock, patch
 
-from main import app
+import pytest
+from fastapi.testclient import TestClient
+
 from app.services.sentiment_service import SentimentService
+from main import app
 
 
 @pytest.fixture

@@ -2,8 +2,9 @@
 Tests pour la gestion d'erreurs
 """
 
+from unittest.mock import Mock, patch
+
 import pytest
-from unittest.mock import patch, Mock
 import tensorflow as tf
 
 from app.services.sentiment_service import SentimentService

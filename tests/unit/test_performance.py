@@ -2,9 +2,10 @@
 Tests de performance pour le service de sentiment
 """
 
-import pytest
 import time
-from unittest.mock import patch, Mock
+from unittest.mock import Mock, patch
+
+import pytest
 import tensorflow as tf
 
 from app.services.sentiment_service import SentimentService

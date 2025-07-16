@@ -1,8 +1,9 @@
 import pathlib
 import pickle
+from typing import Tuple
+
 import tensorflow as tf
 from transformers import AutoTokenizer
-from typing import Tuple
 
 
 class SentimentService:

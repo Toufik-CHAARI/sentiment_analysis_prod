@@ -2,9 +2,10 @@
 Tests unitaires pour le service de sentiment
 """
 
+from unittest.mock import Mock, patch
+
 import pytest
 import tensorflow as tf
-from unittest.mock import Mock, patch
 
 from app.services.sentiment_service import SentimentService
 
