@@ -180,6 +180,25 @@ jobs:
         ECR_URI="${{ steps.aws-account.outputs.account_id }}.dkr.ecr.eu-west-3.amazonaws.com/staging-sentiment-analysis-api:latest"
         docker tag staging-sentiment-analysis-api:latest $ECR_URI
         docker push $ECR_URI
+    - name: Check and fix CloudFormation stack
+      run: |
+        # Check stack status
+        STACK_STATUS=$(aws cloudformation describe-stacks \
+          --stack-name sentiment-analysis-lambda-container-staging \
+          --region eu-west-3 \
+          --query 'Stacks[0].StackStatus' \
+          --output text 2>/dev/null || echo "STACK_NOT_FOUND")
+        
+        echo "Current stack status: $STACK_STATUS"
+        
+        # Delete stack if in ROLLBACK_COMPLETE state
+        if [ "$STACK_STATUS" = "ROLLBACK_COMPLETE" ]; then
+          echo "Stack is in ROLLBACK_COMPLETE state. Deleting stack..."
+          aws cloudformation delete-stack --stack-name sentiment-analysis-lambda-container-staging --region eu-west-3
+          aws cloudformation wait stack-delete-complete --stack-name sentiment-analysis-lambda-container-staging --region eu-west-3
+          echo "Stack deleted successfully"
+        fi
+
     - name: Deploy CloudFormation stack
       run: |
         aws cloudformation deploy \
@@ -237,6 +256,25 @@ jobs:
         ECR_URI="${{ steps.aws-account.outputs.account_id }}.dkr.ecr.eu-west-3.amazonaws.com/mvp-sentiment-analysis-api:latest"
         docker tag mvp-sentiment-analysis-api:latest $ECR_URI
         docker push $ECR_URI
+    - name: Check and fix CloudFormation stack
+      run: |
+        # Check stack status
+        STACK_STATUS=$(aws cloudformation describe-stacks \
+          --stack-name sentiment-analysis-lambda-container-mvp \
+          --region eu-west-3 \
+          --query 'Stacks[0].StackStatus' \
+          --output text 2>/dev/null || echo "STACK_NOT_FOUND")
+        
+        echo "Current stack status: $STACK_STATUS"
+        
+        # Delete stack if in ROLLBACK_COMPLETE state
+        if [ "$STACK_STATUS" = "ROLLBACK_COMPLETE" ]; then
+          echo "Stack is in ROLLBACK_COMPLETE state. Deleting stack..."
+          aws cloudformation delete-stack --stack-name sentiment-analysis-lambda-container-mvp --region eu-west-3
+          aws cloudformation wait stack-delete-complete --stack-name sentiment-analysis-lambda-container-mvp --region eu-west-3
+          echo "Stack deleted successfully"
+        fi
+
     - name: Deploy CloudFormation stack
       run: |
         aws cloudformation deploy \
