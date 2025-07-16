@@ -92,7 +92,7 @@ jobs:
       
     - name: Build Docker image
       run: |
-        docker build -t sentiment-analysis-api:test .
+        docker build -f Dockerfile.test -t sentiment-analysis-api:test .
         
     - name: Test Docker image
       run: |
@@ -100,18 +100,21 @@ jobs:
         docker run -d --name test-container -p 8000:8000 sentiment-analysis-api:test
         
         # Wait for the application to start
-        sleep 10
+        sleep 15
+        
+        # Check if container is running
+        docker ps | grep test-container || (echo "Container not running" && docker logs test-container && exit 1)
         
         # Test health endpoint
-        curl -f http://localhost:8000/health || exit 1
+        curl -f http://localhost:8000/health || (echo "Health check failed" && docker logs test-container && exit 1)
         
         # Test info endpoint
-        curl -f http://localhost:8000/info || exit 1
+        curl -f http://localhost:8000/info || (echo "Info check failed" && docker logs test-container && exit 1)
         
         # Test sentiment endpoint (with mock model)
         curl -X POST http://localhost:8000/predict-sentiment/ \
           -H "Content-Type: application/json" \
-          -d '{"text": "test"}' || exit 1
+          -d '{"text": "test"}' || (echo "Sentiment check failed" && docker logs test-container && exit 1)
         
         # Clean up
         docker stop test-container
@@ -137,7 +140,7 @@ jobs:
         bandit -r app/ -f json -o bandit-report.json || true
         
     - name: Upload security scan results
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       with:
         name: security-scan-results
         path: bandit-report.json
