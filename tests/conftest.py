@@ -1,6 +1,7 @@
 """
 Configuration pytest avec fixtures communes
 """
+
 import pytest
 from fastapi.testclient import TestClient
 from unittest.mock import Mock, patch
@@ -18,7 +19,7 @@ def client():
 @pytest.fixture
 def mock_sentiment_service():
     """Service de sentiment mocké pour les tests"""
-    with patch('app.services.sentiment_service.SentimentService') as mock:
+    with patch("app.services.sentiment_service.SentimentService") as mock:
         service = Mock(spec=SentimentService)
         service.predict_sentiment.return_value = ("4", 0.95)
         service.is_model_loaded.return_value = True
@@ -50,5 +51,5 @@ def sentiment_response_data():
     return {
         "text": "I really enjoyed this movie!",
         "sentiment": "4",
-        "confidence": 0.95
-    } 
+        "confidence": 0.95,
+    }

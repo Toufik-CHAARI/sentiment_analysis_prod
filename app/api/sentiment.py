@@ -7,6 +7,7 @@ router = APIRouter(prefix="/predict-sentiment", tags=["sentiment"])
 # Instance singleton du service de sentiment
 _sentiment_service = None
 
+
 def get_sentiment_service():
     global _sentiment_service
     if _sentiment_service is None:
@@ -22,15 +23,12 @@ async def predict_sentiment(request: SentimentRequest):
     try:
         sentiment_service = get_sentiment_service()
         label, confidence = sentiment_service.predict_sentiment(request.text)
-        
+
         return SentimentResponse(
-            text=request.text,
-            sentiment=label,
-            confidence=confidence
+            text=request.text, sentiment=label, confidence=confidence
         )
-        
+
     except Exception as e:
         raise HTTPException(
-            status_code=500,
-            detail=f"Erreur lors de la prédiction: {str(e)}"
-        ) 
+            status_code=500, detail=f"Erreur lors de la prédiction: {str(e)}"
+        )
