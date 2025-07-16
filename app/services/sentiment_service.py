@@ -1,14 +1,14 @@
+import os
 import pathlib
 import pickle
-import os
 from typing import Tuple
 
 import tensorflow as tf
 from transformers import AutoTokenizer
 
 # Set cache directory for transformers to writable location in Lambda
-os.environ['TRANSFORMERS_CACHE'] = '/tmp/transformers_cache'
-os.environ['HF_HOME'] = '/tmp/huggingface_cache'
+os.environ["TRANSFORMERS_CACHE"] = "/tmp/transformers_cache"
+os.environ["HF_HOME"] = "/tmp/huggingface_cache"
 
 
 class SentimentService:
@@ -25,10 +25,13 @@ class SentimentService:
     def _load_model(self):
         """Charge le modèle DistilBERT et les composants nécessaires"""
         try:
-            print(f"🔍 Début du chargement du modèle...")
+            print("🔍 Début du chargement du modèle...")
             print(f"📁 Répertoire de travail: {os.getcwd()}")
-            print(f"📁 Cache directory: {os.environ.get('TRANSFORMERS_CACHE', 'Non défini')}")
-            
+            print(
+                f"📁 Cache directory: "
+                f"{os.environ.get('TRANSFORMERS_CACHE', 'Non défini')}"
+            )
+
             # Chemin vers le modèle SavedModel
             model_dir = self.model_path / "distilbert_HF_2000k"
             print(f"📁 Chemin du modèle: {model_dir}")
@@ -43,8 +46,7 @@ class SentimentService:
             print("🔄 Chargement du tokenizer...")
             # Charger le tokenizer avec cache directory
             self.tokenizer = AutoTokenizer.from_pretrained(
-                self.model_name,
-                cache_dir='/tmp/transformers_cache'
+                self.model_name, cache_dir="/tmp/transformers_cache"
             )
 
             print("🔄 Chargement du label encoder...")
@@ -58,6 +60,7 @@ class SentimentService:
         except Exception as e:
             print(f"❌ Erreur lors du chargement du modèle: {e}")
             import traceback
+
             print(f"📋 Stack trace: {traceback.format_exc()}")
             raise
 
