@@ -15,4 +15,4 @@ db.sqlite3
 media
 staticfiles
 MLflowStore/
-models/
+!models/*.dvc
