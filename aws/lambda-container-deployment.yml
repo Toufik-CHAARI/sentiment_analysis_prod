@@ -9,32 +9,6 @@ Parameters:
     Description: Environment name
 
 Resources:
-  # ECR Repository for Lambda Container
-  LambdaContainerRepository:
-    Type: AWS::ECR::Repository
-    Properties:
-      RepositoryName: !Sub '${Environment}-sentiment-analysis-api'
-      ImageScanningConfiguration:
-        ScanOnPush: true
-      LifecyclePolicy:
-        LifecyclePolicyText: |
-          {
-            "rules": [
-              {
-                "rulePriority": 1,
-                "description": "Keep last 5 images",
-                "selection": {
-                  "tagStatus": "any",
-                  "countType": "imageCountMoreThan",
-                  "countNumber": 5
-                },
-                "action": {
-                  "type": "expire"
-                }
-              }
-            ]
-          }
-
   # Lambda Function using Container Image
   SentimentAnalysisFunction:
     Type: AWS::Lambda::Function
@@ -42,10 +16,10 @@ Resources:
       FunctionName: !Sub '${Environment}-sentiment-analysis-api'
       PackageType: Image
       Code:
-        ImageUri: !Sub '${AWS::AccountId}.dkr.ecr.${AWS::Region}.amazonaws.com/${LambdaContainerRepository}:latest'
+        ImageUri: !Sub '${AWS::AccountId}.dkr.ecr.${AWS::Region}.amazonaws.com/${Environment}-sentiment-analysis-api:latest'
       Role: !GetAtt LambdaExecutionRole.Arn
-      Timeout: 30
-      MemorySize: 1024
+      Timeout: 300
+      MemorySize: 4096
       Environment:
         Variables:
           ENVIRONMENT: !Ref Environment
@@ -76,6 +50,12 @@ Resources:
                   - ecr:BatchCheckLayerAvailability
                   - ecr:GetDownloadUrlForLayer
                   - ecr:BatchGetImage
+                Resource: '*'
+              - Effect: Allow
+                Action:
+                  - logs:CreateLogGroup
+                  - logs:CreateLogStream
+                  - logs:PutLogEvents
                 Resource: '*'
 
   # API Gateway
@@ -152,10 +132,4 @@ Outputs:
     Description: Lambda Function ARN
     Value: !GetAtt SentimentAnalysisFunction.Arn
     Export:
-      Name: !Sub '${Environment}-sentiment-api-lambda-arn'
-
-  EcrRepositoryUri:
-    Description: ECR Repository URI
-    Value: !Sub '${AWS::AccountId}.dkr.ecr.${AWS::Region}.amazonaws.com/${LambdaContainerRepository}'
-    Export:
-      Name: !Sub '${Environment}-sentiment-api-ecr-uri' 
+      Name: !Sub '${Environment}-sentiment-api-lambda-arn' 
