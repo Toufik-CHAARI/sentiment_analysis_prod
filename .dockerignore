@@ -1,39 +1,57 @@
 # Git
 .git
 .gitignore
+.gitattributes
 
-# Python
-__pycache__
-*.pyc
-*.pyo
-*.pyd
-.Python
-env
-pip-log.txt
-pip-delete-this-directory.txt
-.tox
-.coverage
-.coverage.*
-.cache
-nosetests.xml
-coverage.xml
-*.cover
-*.log
-.git
-.mypy_cache
-.pytest_cache
-.hypothesis
+# Documentation
+README.md
+DEPLOYMENT.md
+*.md
 
-# Virtual environments
+# Development files
 .env
+.env.local
+.env.*.local
 .venv
 env/
 venv/
 ENV/
-env.bak/
-venv.bak/
 
-# IDE
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+
+# Testing
+.pytest_cache/
+.coverage
+htmlcov/
+.tox/
+.cache
+nosetests.xml
+coverage.xml
+*.cover
+.hypothesis/
+
+# IDEs
 .vscode/
 .idea/
 *.swp
@@ -49,31 +67,43 @@ venv.bak/
 ehthumbs.db
 Thumbs.db
 
-# Documentation
-README.md
-docs/
-*.md
+# Docker
+Dockerfile*
+docker-compose*
+.dockerignore
 
-# Tests (pour l'image de production)
-tests/
-.pytest_cache/
-htmlcov/
-.coverage
-coverage.xml
+# AWS
+aws/
+scripts/
 
-# Development files
-Makefile
-docker-compose.yml
-Dockerfile.test
-.github/
+# DVC
+.dvc/
+.dvcignore
 
-# MLflow (si présent)
+# MLflow
 MLflowStore/
 
+# Development containers
+.devcontainer/
+
+# Makefile and project files
+Makefile
+pyproject.toml
+.flake8
+pytest.ini
+
+# Test files
+tests/
+test_*.py
+*_test.py
+
+# CI/CD
+.github/
+
 # Logs
-logs/
 *.log
+logs/
 
 # Temporary files
-tmp/
-temp/ 
+*.tmp
+*.temp 

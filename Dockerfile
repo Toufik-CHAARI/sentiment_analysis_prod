@@ -50,6 +50,7 @@ COPY --from=builder /root/.local /home/appuser/.local
 
 # Copier uniquement les fichiers nécessaires pour la production
 COPY --chown=appuser:appuser main.py .
+COPY --chown=appuser:appuser lambda_function.py .
 COPY --chown=appuser:appuser app/ ./app/
 COPY --chown=appuser:appuser models/ ./models/
 
@@ -58,7 +59,14 @@ RUN mkdir -p /app/logs && chown -R appuser:appuser /app
 
 # Créer un cache HuggingFace accessible
 RUN mkdir -p /app/cache && chown -R appuser:appuser /app/cache
-ENV TRANSFORMERS_CACHE=/app/cache
+ENV TRANSFORMERS_CACHE=/tmp/hf \
+    HF_HOME=/tmp/hf \
+    HF_DATASETS_CACHE=/tmp/hf \
+    HF_METRICS_CACHE=/tmp/hf \
+    XDG_CACHE_HOME=/tmp/hf \
+    TMPDIR=/tmp
+
+RUN mkdir -p /tmp/hf
 
 # Changer vers l'utilisateur non-root
 USER appuser
@@ -76,5 +84,5 @@ ENV HOST=0.0.0.0 \
 HEALTHCHECK --interval=30s --timeout=30s --start-period=5s --retries=3 \
     CMD curl -f http://localhost:8000/health || exit 1
 
-# Commande de démarrage
-CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000", "--workers", "4"] 
+# Commande de démarrage pour FastAPI
+CMD ["python", "main.py"] 

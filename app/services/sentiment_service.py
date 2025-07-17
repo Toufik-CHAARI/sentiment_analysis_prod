@@ -9,6 +9,13 @@ from transformers import AutoTokenizer
 # Set cache directory for transformers to writable location in Lambda
 os.environ["TRANSFORMERS_CACHE"] = "/tmp/transformers_cache"
 os.environ["HF_HOME"] = "/tmp/huggingface_cache"
+os.environ["HF_DATASETS_CACHE"] = "/tmp/huggingface_datasets"
+os.environ["TORCH_HOME"] = "/tmp/torch_cache"
+
+# Create cache directories if they don't exist
+import pathlib
+for cache_dir in ["/tmp/transformers_cache", "/tmp/huggingface_cache", "/tmp/huggingface_datasets", "/tmp/torch_cache"]:
+    pathlib.Path(cache_dir).mkdir(parents=True, exist_ok=True)
 
 
 class SentimentService:
@@ -27,10 +34,20 @@ class SentimentService:
         try:
             print("🔍 Début du chargement du modèle...")
             print(f"📁 Répertoire de travail: {os.getcwd()}")
-            print(
-                f"📁 Cache directory: "
-                f"{os.environ.get('TRANSFORMERS_CACHE', 'Non défini')}"
-            )
+            print(f"📁 Cache directory: {os.environ.get('TRANSFORMERS_CACHE', 'Non défini')}")
+            print(f"📁 HF_HOME: {os.environ.get('HF_HOME', 'Non défini')}")
+            print(f"📁 HF_DATASETS_CACHE: {os.environ.get('HF_DATASETS_CACHE', 'Non défini')}")
+            print(f"📁 TORCH_HOME: {os.environ.get('TORCH_HOME', 'Non défini')}")
+            
+            # Test write permissions
+            test_file = "/tmp/test_write.txt"
+            try:
+                with open(test_file, "w") as f:
+                    f.write("test")
+                print(f"✅ Écriture dans /tmp réussie")
+                os.remove(test_file)
+            except Exception as e:
+                print(f"❌ Erreur d'écriture dans /tmp: {e}")
 
             # Chemin vers le modèle SavedModel
             model_dir = self.model_path / "distilbert_HF_2000k"
@@ -46,7 +63,9 @@ class SentimentService:
             print("🔄 Chargement du tokenizer...")
             # Charger le tokenizer avec cache directory
             self.tokenizer = AutoTokenizer.from_pretrained(
-                self.model_name, cache_dir="/tmp/transformers_cache"
+                self.model_name, 
+                cache_dir="/tmp/transformers_cache",
+                local_files_only=False
             )
 
             print("🔄 Chargement du label encoder...")

@@ -75,6 +75,79 @@ docker-compose-down:
 docker-compose-test:
 	docker-compose run --rm sentiment-api-test
 
+# Docker Hub commands
+docker-hub-login:
+	@echo "🔐 Logging in to Docker Hub..."
+	docker login
+
+docker-hub-build:
+	@echo "🐳 Building Docker image for Docker Hub..."
+	docker build --no-cache -t $(DOCKER_HUB_USERNAME)/sentiment-analysis-api:$(VERSION) .
+	docker tag $(DOCKER_HUB_USERNAME)/sentiment-analysis-api:$(VERSION) $(DOCKER_HUB_USERNAME)/sentiment-analysis-api:latest
+
+docker-hub-test:
+	@echo "🧪 Testing Docker Hub image..."
+	docker run -d --name test-sentiment-api -p 8000:8000 $(DOCKER_HUB_USERNAME)/sentiment-analysis-api:$(VERSION)
+	@sleep 10
+	@curl -f http://localhost:8000/health || (docker logs test-sentiment-api && docker stop test-sentiment-api && docker rm test-sentiment-api && exit 1)
+	@docker stop test-sentiment-api && docker rm test-sentiment-api
+	@echo "✅ Docker Hub image test passed"
+
+docker-hub-push:
+	@echo "📤 Pushing to Docker Hub..."
+	docker push $(DOCKER_HUB_USERNAME)/sentiment-analysis-api:$(VERSION)
+	docker push $(DOCKER_HUB_USERNAME)/sentiment-analysis-api:latest
+
+docker-hub-publish: docker-hub-login docker-hub-build docker-hub-test docker-hub-push
+	@echo "🎉 Successfully published to Docker Hub!"
+	@echo "Image: $(DOCKER_HUB_USERNAME)/sentiment-analysis-api:$(VERSION)"
+	@echo "URL: https://hub.docker.com/r/$(DOCKER_HUB_USERNAME)/sentiment-analysis-api"
+
+docker-hub-run:
+	@echo "🚀 Running from Docker Hub..."
+	docker run -p 8000:8000 $(DOCKER_HUB_USERNAME)/sentiment-analysis-api:$(VERSION)
+
+# Production deployment commands
+deploy-prod:
+	@echo "🚀 Deploying to production..."
+	@./scripts/deploy-prod.sh
+
+deploy-prod-version:
+	@echo "🚀 Deploying specific version to production..."
+	@read -p "Enter version (e.g., v1.0.0): " version; \
+	./scripts/deploy-prod.sh $$version
+
+deploy-prod-force:
+	@echo "🚀 Force deploying to production (skip tests)..."
+	@DOCKER_HUB_USERNAME=$(DOCKER_HUB_USERNAME) \
+	docker build --no-cache -t $(DOCKER_HUB_USERNAME)/sentiment-analysis-api:latest . && \
+	docker push $(DOCKER_HUB_USERNAME)/sentiment-analysis-api:latest
+
+# Docker Hub production commands
+docker-hub-prod-build:
+	@echo "🐳 Building production Docker image..."
+	docker build --no-cache -t $(DOCKER_HUB_USERNAME)/sentiment-analysis-api:latest .
+	docker tag $(DOCKER_HUB_USERNAME)/sentiment-analysis-api:latest $(DOCKER_HUB_USERNAME)/sentiment-analysis-api:$(VERSION)
+
+docker-hub-prod-test:
+	@echo "🧪 Testing production Docker image..."
+	docker run -d --name prod-test-api -p 8000:8000 $(DOCKER_HUB_USERNAME)/sentiment-analysis-api:latest
+	@sleep 15
+	@curl -f http://localhost:8000/health || (docker logs prod-test-api && docker stop prod-test-api && docker rm prod-test-api && exit 1)
+	@curl -f -X POST http://localhost:8000/predict -H "Content-Type: application/json" -d '{"text": "I love this product!"}' || (docker logs prod-test-api && docker stop prod-test-api && docker rm prod-test-api && exit 1)
+	@docker stop prod-test-api && docker rm prod-test-api
+	@echo "✅ Production image test passed"
+
+docker-hub-prod-push:
+	@echo "📤 Pushing production image to Docker Hub..."
+	docker push $(DOCKER_HUB_USERNAME)/sentiment-analysis-api:latest
+	docker push $(DOCKER_HUB_USERNAME)/sentiment-analysis-api:$(VERSION)
+
+docker-hub-prod-deploy: docker-hub-prod-build docker-hub-prod-test docker-hub-prod-push
+	@echo "🎉 Production deployment successful!"
+	@echo "Image: $(DOCKER_HUB_USERNAME)/sentiment-analysis-api:$(VERSION)"
+	@echo "URL: https://hub.docker.com/r/$(DOCKER_HUB_USERNAME)/sentiment-analysis-api"
+
 # Linting and formatting
 lint:
 	flake8 app/ tests/ --max-line-length=88 --extend-ignore=E203,W503
