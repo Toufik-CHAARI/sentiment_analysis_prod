@@ -9,12 +9,14 @@ Une API FastAPI moderne pour l'analyse de sentiment utilisant un modèle DistilB
 - **Documentation automatique** : Swagger UI et ReDoc intégrés
 - **Tests complets** : Tests unitaires et d'intégration avec 94% de couverture
 - **Performance optimisée** : Chargement unique du modèle avec pattern singleton
+- **Déploiement multi-plateforme** : Support Docker local et AWS Lambda
 
 ## 📋 Prérequis
 
 - Python 3.8+
 - TensorFlow 2.16+
 - Modèle DistilBERT dans le dossier `models/`
+- Docker (pour le déploiement conteneurisé)
 
 ## 🛠️ Installation
 
@@ -44,6 +46,7 @@ pip install -r requirements-test.txt
 
 ## 🚀 Lancement de l'application
 
+### Développement local
 ```bash
 python main.py
 ```
@@ -131,11 +134,16 @@ sentiment_analysis_prod/
 │   ├── integration/            # Tests d'intégration
 │   ├── conftest.py            # Configuration pytest
 │   └── run_tests.py           # Script d'exécution des tests
-├── main.py                     # Point d'entrée de l'application
+├── aws/                       # Configuration AWS Lambda
+├── scripts/                   # Scripts de déploiement
+├── main.py                    # Point d'entrée de l'application
+├── main_lambda.py             # Point d'entrée Lambda
+├── lambda_function.py          # Handler Lambda
 ├── requirements.txt            # Dépendances principales
+├── requirements-lambda.txt     # Dépendances Lambda
 ├── requirements-test.txt       # Dépendances de test
 ├── pytest.ini                 # Configuration pytest
-├── Makefile                   # Commandes de test
+├── Makefile                   # Commandes de développement et déploiement
 └── README.md                  # Ce fichier
 ```
 
@@ -161,6 +169,7 @@ make test-schemas      # Tests des schémas
 make test-service      # Tests du service
 make test-errors       # Tests de gestion d'erreurs
 make test-endpoints    # Tests des endpoints
+make test-performance  # Tests de performance
 ```
 
 ### Couverture de code
@@ -190,17 +199,71 @@ Le fichier `pytest.ini` configure :
 - Marqueurs personnalisés
 - Options de sortie
 
+## 🐳 Docker
+
+### Développement local
+
+#### Construction de l'image
+```bash
+# Image de développement
+make docker-build
+
+# Image de test
+make docker-build-test
+
+# Image Lambda
+make docker-build-lambda
+```
+
+#### Exécution
+```bash
+# Démarrer l'API
+make docker-run
+
+# Arrêter l'API
+make docker-stop
+
+# Tests dans Docker
+make docker-test
+
+# Avec Docker Compose
+make docker-compose-up
+make docker-compose-down
+```
+
+#### Test de l'API
+```bash
+curl -X POST http://localhost:8000/predict-sentiment/ \
+  -H "Content-Type: application/json" \
+  -d '{"text": "I love this product!"}'
+```
+
+### Images disponibles
+
+- **`sentiment-analysis-api:latest`** : Image de développement/production
+- **`sentiment-analysis-api:test`** : Image avec dépendances de test
+- **`mvp-sentiment-analysis-api:latest`** : Image optimisée pour AWS Lambda
+
 ## 🚀 Déploiement
 
-### Développement
+### Développement local
 ```bash
 uvicorn main:app --reload --host 0.0.0.0 --port 8000
 ```
 
-### Production
+### Production avec Docker
 ```bash
 uvicorn main:app --host 0.0.0.0 --port 8000 --workers 4
 ```
+
+### AWS Lambda
+
+L'API peut être déployée sur AWS Lambda avec les fichiers :
+- `main_lambda.py` : Point d'entrée Lambda
+- `lambda_function.py` : Handler Lambda
+- `requirements-lambda.txt` : Dépendances optimisées
+
+Voir `DEPLOYMENT.md` pour les instructions détaillées.
 
 ## 📊 Métriques
 
@@ -208,6 +271,28 @@ uvicorn main:app --host 0.0.0.0 --port 8000 --workers 4
 - **Couverture de tests** : 94%
 - **Endpoints** : 4 endpoints principaux
 - **Modèle** : DistilBERT fine-tuné pour l'analyse de sentiment
+
+## 🛠️ Commandes utiles
+
+### Qualité de code
+```bash
+make lint              # Vérifier le style de code
+make format            # Formater le code
+make format-check      # Vérifier le formatage
+make security-scan     # Scan de sécurité
+```
+
+### Nettoyage
+```bash
+make clean             # Nettoyer les fichiers de test
+make clean-docker      # Nettoyer Docker
+make install-test      # Installer les dépendances de test
+```
+
+### Aide
+```bash
+make help              # Afficher toutes les commandes disponibles
+```
 
 ## 🤝 Contribution
 
@@ -217,31 +302,9 @@ uvicorn main:app --host 0.0.0.0 --port 8000 --workers 4
 4. Push vers la branche (`git push origin feature/AmazingFeature`)
 5. Ouvrir une Pull Request
 
-## 🐳 Docker (Local Development)
+## 📚 Documentation supplémentaire
 
-You can use Docker Desktop to build and run the API locally:
-
-### Build the image
-```bash
-docker build -t sentiment-analysis-api:latest .
-```
-
-### Run the API
-```bash
-docker run -p 8000:8000 sentiment-analysis-api:latest
-```
-
-### Test the API
-```bash
-curl -X POST http://localhost:8000/predict-sentiment/ \
-  -H "Content-Type: application/json" \
-  -d '{"text": "I love this product!"}'
-```
-
-### Docker Compose
-```bash
-docker-compose up sentiment-api
-```
-
----
+- **Guide de déploiement** : `DEPLOYMENT.md`
+- **Configuration AWS** : `aws/`
+- **Scripts de déploiement** : `scripts/`
 

@@ -56,6 +56,9 @@ docker-build:
 docker-build-test:
 	docker build -f Dockerfile.test -t sentiment-analysis-api:test .
 
+docker-build-lambda:
+	docker build -f Dockerfile.lambda -t mvp-sentiment-analysis-api:latest .
+
 docker-run:
 	docker run -d --name sentiment-api -p 8000:8000 sentiment-analysis-api:latest
 
@@ -122,6 +125,7 @@ help:
 	@echo "Docker:"
 	@echo "  make docker-build      - Construire l'image Docker"
 	@echo "  make docker-build-test - Construire l'image de test"
+	@echo "  make docker-build-lambda - Construire l'image Lambda"
 	@echo "  make docker-run        - Démarrer le conteneur"
 	@echo "  make docker-stop       - Arrêter le conteneur"
 	@echo "  make docker-test       - Tester l'image Docker"

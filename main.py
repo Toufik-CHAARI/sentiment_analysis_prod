@@ -31,8 +31,11 @@ app.include_router(health_router)
 app.include_router(sentiment_router)
 
 if __name__ == "__main__":
-    import uvicorn
-
-    print("🚀 Démarrage du serveur FastAPI...")
-    os.makedirs("/tmp/hf", exist_ok=True)
-    uvicorn.run(app, host="0.0.0.0", port=8000)
+    # Only import uvicorn when running locally (not in Lambda)
+    try:
+        import uvicorn
+        print("🚀 Démarrage du serveur FastAPI...")
+        os.makedirs("/tmp/hf", exist_ok=True)
+        uvicorn.run(app, host="0.0.0.0", port=8000)
+    except ImportError:
+        print("Uvicorn not available - running in Lambda environment")
