@@ -13,8 +13,14 @@ os.environ["HF_DATASETS_CACHE"] = "/tmp/huggingface_datasets"
 os.environ["TORCH_HOME"] = "/tmp/torch_cache"
 
 # Create cache directories if they don't exist
-import pathlib
-for cache_dir in ["/tmp/transformers_cache", "/tmp/huggingface_cache", "/tmp/huggingface_datasets", "/tmp/torch_cache"]:
+cache_dirs = [
+    "/tmp/transformers_cache",
+    "/tmp/huggingface_cache",
+    "/tmp/huggingface_datasets",
+    "/tmp/torch_cache",
+]
+
+for cache_dir in cache_dirs:
     pathlib.Path(cache_dir).mkdir(parents=True, exist_ok=True)
 
 
@@ -34,17 +40,23 @@ class SentimentService:
         try:
             print("🔍 Début du chargement du modèle...")
             print(f"📁 Répertoire de travail: {os.getcwd()}")
-            print(f"📁 Cache directory: {os.environ.get('TRANSFORMERS_CACHE', 'Non défini')}")
+            cache_dir_env = os.environ.get("TRANSFORMERS_CACHE", "Non défini")
+            print("📁 Cache directory:")
+            print(cache_dir_env)
             print(f"📁 HF_HOME: {os.environ.get('HF_HOME', 'Non défini')}")
-            print(f"📁 HF_DATASETS_CACHE: {os.environ.get('HF_DATASETS_CACHE', 'Non défini')}")
-            print(f"📁 TORCH_HOME: {os.environ.get('TORCH_HOME', 'Non défini')}")
-            
+            hf_datasets_cache = os.environ.get("HF_DATASETS_CACHE", "Non défini")
+            print("📁 HF_DATASETS_CACHE:")
+            print(hf_datasets_cache)
+            torch_home = os.environ.get("TORCH_HOME", "Non défini")
+            print("📁 TORCH_HOME:")
+            print(torch_home)
+
             # Test write permissions
             test_file = "/tmp/test_write.txt"
             try:
                 with open(test_file, "w") as f:
                     f.write("test")
-                print(f"✅ Écriture dans /tmp réussie")
+                print("✅ Écriture dans /tmp réussie")
                 os.remove(test_file)
             except Exception as e:
                 print(f"❌ Erreur d'écriture dans /tmp: {e}")
@@ -63,9 +75,9 @@ class SentimentService:
             print("🔄 Chargement du tokenizer...")
             # Charger le tokenizer avec cache directory
             self.tokenizer = AutoTokenizer.from_pretrained(
-                self.model_name, 
+                self.model_name,
                 cache_dir="/tmp/transformers_cache",
-                local_files_only=False
+                local_files_only=False,
             )
 
             print("🔄 Chargement du label encoder...")
