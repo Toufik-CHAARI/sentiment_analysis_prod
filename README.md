@@ -217,78 +217,31 @@ uvicorn main:app --host 0.0.0.0 --port 8000 --workers 4
 4. Push vers la branche (`git push origin feature/AmazingFeature`)
 5. Ouvrir une Pull Request
 
-## 🐳 Docker Hub
+## 🐳 Docker (Local Development)
 
-This project is also available on Docker Hub for easy deployment and sharing.
+You can use Docker Desktop to build and run the API locally:
 
-### Quick Start with Docker Hub
-
+### Build the image
 ```bash
-# Pull the image
-docker pull your-username/sentiment-analysis-api:latest
+docker build -t sentiment-analysis-api:latest .
+```
 
-# Run the API
-docker run -p 8000:8000 your-username/sentiment-analysis-api:latest
+### Run the API
+```bash
+docker run -p 8000:8000 sentiment-analysis-api:latest
+```
 
-# Test the API
-curl -X POST http://localhost:8000/predict \
+### Test the API
+```bash
+curl -X POST http://localhost:8000/predict-sentiment/ \
   -H "Content-Type: application/json" \
   -d '{"text": "I love this product!"}'
 ```
 
-### Publishing to Docker Hub
-
+### Docker Compose
 ```bash
-# Set your Docker Hub username
-export DOCKER_HUB_USERNAME="your-username"
-
-# Publish to Docker Hub
-make docker-hub-publish
-
-# Or use the script
-./scripts/docker-hub-publish.sh
+docker-compose up sentiment-api
 ```
 
-### Docker Compose with Docker Hub
-
-```yaml
-version: '3.8'
-services:
-  sentiment-api:
-    image: your-username/sentiment-analysis-api:latest
-    ports:
-      - "8000:8000"
-    environment:
-      - WORKERS=2
-      - LOG_LEVEL=info
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
-```
-
-### Benefits of Using Docker Hub
-
-- ✅ **Easy Distribution**: Share your API with others
-- ✅ **Version Control**: Tag different versions of your API
-- ✅ **CI/CD Integration**: Automate deployments
-- ✅ **Cloud Deployment**: Deploy to any cloud platform
-- ✅ **Reproducible**: Same environment everywhere
-
-### Docker Hub Commands
-
-```bash
-# Build and publish
-make docker-hub-publish
-
-# Run from Docker Hub
-make docker-hub-run
-
-# Test Docker Hub image
-make docker-hub-test
-
-# Login to Docker Hub
-make docker-hub-login
-```
+---
 

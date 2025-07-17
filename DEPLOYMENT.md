@@ -174,10 +174,11 @@ make docker-test
 
 ### 2. Déploiement
 ```bash
-# Avec le script de déploiement
-./scripts/deploy.sh v1.0.0 your-registry.com
+# Construire et tester l'image
+make docker-build
+make docker-test
 
-# Ou manuellement
+# Pour déploiement sur un registry privé
 docker tag sentiment-analysis-api:latest your-registry.com/sentiment-analysis-api:v1.0.0
 docker push your-registry.com/sentiment-analysis-api:v1.0.0
 ```
