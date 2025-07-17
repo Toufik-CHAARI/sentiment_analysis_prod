@@ -144,7 +144,7 @@ test_production_image() {
     fi
     
     # Test sentiment endpoint
-    if curl -f -X POST http://localhost:8000/predict \
+    if curl -f -X POST http://localhost:8000/predict-sentiment/ \
         -H "Content-Type: application/json" \
         -d '{"text": "I love this product!"}' > /dev/null 2>&1; then
         print_success "API endpoint test passed"

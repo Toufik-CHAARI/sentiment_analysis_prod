@@ -134,7 +134,7 @@ docker-hub-prod-test:
 	docker run -d --name prod-test-api -p 8000:8000 $(DOCKER_HUB_USERNAME)/sentiment-analysis-api:latest
 	@sleep 15
 	@curl -f http://localhost:8000/health || (docker logs prod-test-api && docker stop prod-test-api && docker rm prod-test-api && exit 1)
-	@curl -f -X POST http://localhost:8000/predict -H "Content-Type: application/json" -d '{"text": "I love this product!"}' || (docker logs prod-test-api && docker stop prod-test-api && docker rm prod-test-api && exit 1)
+	@curl -f -X POST http://localhost:8000/predict-sentiment/ -H "Content-Type: application/json" -d '{"text": "I love this product!"}' || (docker logs prod-test-api && docker stop prod-test-api && docker rm prod-test-api && exit 1)
 	@docker stop prod-test-api && docker rm prod-test-api
 	@echo "✅ Production image test passed"
 
