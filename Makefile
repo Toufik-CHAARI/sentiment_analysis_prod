@@ -107,6 +107,13 @@ clean-docker:
 	docker system prune -f
 	docker image prune -f
 
+# MLflow UI for local model visualization
+mlflow-ui:
+	@echo "Starting MLflow UI server..."
+	@echo "MLflow store path: $(PWD)/MLflowStore"
+	@echo "Server will be available at: http://localhost:8080"
+	mlflow ui --backend-store-uri file://$(PWD)/MLflowStore --port 8080 --host 0.0.0.0
+
 # Aide
 help:
 	@echo "Commandes disponibles:"
@@ -143,4 +150,8 @@ help:
 	@echo "  make clean             - Nettoyer les fichiers de test"
 	@echo "  make clean-docker      - Nettoyer Docker"
 	@echo "  make install-test      - Installer les dépendances de test"
+	@echo ""
+	@echo "MLflow:"
+	@echo "  make mlflow-ui         - Démarrer MLflow UI pour visualiser les modèles"
+	@echo ""
 	@echo "  make help              - Afficher cette aide" 
