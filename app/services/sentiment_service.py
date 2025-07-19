@@ -62,7 +62,7 @@ class SentimentService:
                 print(f"❌ Erreur d'écriture dans /tmp: {e}")
 
             # Chemin vers le modèle SavedModel
-            model_dir = self.model_path / "distilbert_HF_2000k"
+            model_dir = self.model_path / "distilbert_HF_100000k"
             print(f"📁 Chemin du modèle: {model_dir}")
 
             if not model_dir.exists():
