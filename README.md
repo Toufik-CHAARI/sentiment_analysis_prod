@@ -128,20 +128,41 @@ sentiment_analysis_prod/
 │   └── services/
 │       ├── __init__.py
 │       └── sentiment_service.py # Service d'analyse de sentiment
-├── models/                     # Modèle DistilBERT
-├── tests/                      # Tests unitaires et d'intégration
-│   ├── unit/                   # Tests unitaires
-│   ├── integration/            # Tests d'intégration
+├── models/
+│   └── bert_curriculum_HF_last_version/
+│       ├── distilbert_HF_100000k.dvc
+│       ├── label_encoder.pkl
+│       └── distilbert_HF_100000k/      # Dossier du modèle (contenu non listé)
+├── tests/
+│   ├── __init__.py
 │   ├── conftest.py            # Configuration pytest
-│   └── run_tests.py           # Script d'exécution des tests
-├── aws/                       # Configuration AWS Lambda
-├── scripts/                   # Scripts de déploiement
+│   ├── run_tests.py           # Script d'exécution des tests
+│   ├── unit/
+│   │   ├── __init__.py
+│   │   ├── test_schemas.py
+│   │   ├── test_sentiment_service.py
+│   │   ├── test_error_handling.py
+│   │   └── test_performance.py
+│   └── integration/
+│       ├── __init__.py
+│       └── test_endpoints.py
+├── aws/
+│   ├── lambda-container-deployment.yml
+│   ├── deploy-lambda-container.sh
+│   └── README.md
+├── scripts/
+│   ├── get-api-url.sh
+│   ├── deploy-with-ecr.sh
+│   ├── debug-cloudformation.sh
+│   ├── fix-cloudformation.sh
+│   ├── test-docker.sh
+│   └── deploy.sh
 ├── main.py                    # Point d'entrée de l'application
 ├── main_lambda.py             # Point d'entrée Lambda
-├── lambda_function.py          # Handler Lambda
-├── requirements.txt            # Dépendances principales
-├── requirements-lambda.txt     # Dépendances Lambda
-├── requirements-test.txt       # Dépendances de test
+├── lambda_function.py         # Handler Lambda
+├── requirements.txt           # Dépendances principales
+├── requirements-lambda.txt    # Dépendances Lambda
+├── requirements-test.txt      # Dépendances de test
 ├── pytest.ini                 # Configuration pytest
 ├── Makefile                   # Commandes de développement et déploiement
 └── README.md                  # Ce fichier
